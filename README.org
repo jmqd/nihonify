@@ -1,4 +1,18 @@
 * nihonify
 
+
 Intended to be a lightweight lib of things that can =nihonify= inputs, with an
 accompanying CLI to hook into the lib functions.
+
+** How to build
+
+#+BEGIN_SRC shell
+cargo build --release
+#+END_SRC
+
+** How to use
+
+#+BEGIN_SRC shell
+nihonify convert-date --date "2021-11-10"
+令和３年１１月１０日
+#+END_SRC
