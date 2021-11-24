@@ -1,0 +1,4 @@
+* nihonify
+
+Intended to be a lightweight lib of things that can =nihonify= inputs, with an
+accompanying CLI to hook into the lib functions.
