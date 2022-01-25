@@ -63,31 +63,28 @@ impl Era {
     pub fn to_jp_nenkou_string(date: DateTime<Utc>) -> Option<String> {
         match Era::from_datetime(date) {
             None => None,
-            Some(era) => {
-                match era.kanji {
-                    Some(kanji) => Some(format!(
-                        "{}{}年{}月{}日",
-                        kanji,
-                        to_jp_intstring(
-                            (1 +
-                                 (date - Utc.timestamp(era.started_at, 0)).num_days() /
-                                     365)
-                                .try_into()
-                                .unwrap(),
-                        ),
-                        to_jp_intstring(date.month()),
-                        to_jp_intstring(date.day())
-                    )),
-                    None => None,
-                }
-            }
+            Some(era) => match era.kanji {
+                Some(kanji) => Some(format!(
+                    "{}{}年{}月{}日",
+                    kanji,
+                    to_jp_intstring(
+                        (1 + (date - Utc.timestamp(era.started_at, 0)).num_days() / 365)
+                            .try_into()
+                            .unwrap(),
+                    ),
+                    to_jp_intstring(date.month()),
+                    to_jp_intstring(date.day())
+                )),
+                None => None,
+            },
         }
     }
 }
 
 /// Makes a string of the uint and converts the ASCII 0-9 to the Japanese ０−９.
 fn to_jp_intstring(num: u32) -> String {
-    return num.to_string()
+    return num
+        .to_string()
         .chars()
         // Japanese integers are shifted 65,248 slots away from ASCII integers
         // in Unicode character space.
@@ -97,10 +94,25 @@ fn to_jp_intstring(num: u32) -> String {
 }
 
 pub fn utc_dt(date: &str) -> DateTime<Utc> {
-    Utc.from_utc_datetime(&DateTime::parse_from_rfc3339(
-        format!("{}T22:10:57Z", date).as_str(),
-    ).unwrap()
-        .naive_utc())
+    Utc.from_utc_datetime(
+        &DateTime::parse_from_rfc3339(format!("{}T22:10:57Z", date).as_str())
+            .unwrap()
+            .naive_utc(),
+    )
+}
+
+/// A rudimentary way to detect Japanese-language strings.
+/// O(n) on the length of the string.
+pub fn is_jp(s: &str) -> bool {
+    for c in s.chars().into_iter() {
+        match c as u32 {
+            0x3040..=0x309F => return true,
+            0x30A0..=0x30FF => return true,
+            _ => (),
+        }
+    }
+
+    return false;
 }
 
 #[cfg(test)]
@@ -109,7 +121,6 @@ mod tests {
 
     #[test]
     fn test_from_unix_epoch_various_eras() {
-
         // Testing various era happy paths
         assert_eq!(
             Era::from_unix_epoch(-1556668810).unwrap().romaji,
@@ -155,9 +166,11 @@ mod tests {
         // November 2021 should be Reiwa 3
         assert_eq!(
             Era::to_jp_nenkou_string(
-                Utc.from_utc_datetime(&DateTime::parse_from_rfc3339("2021-11-12T22:10:57Z")
-                    .unwrap()
-                    .naive_utc()),
+                Utc.from_utc_datetime(
+                    &DateTime::parse_from_rfc3339("2021-11-12T22:10:57Z")
+                        .unwrap()
+                        .naive_utc()
+                ),
             ),
             Some("令和３年１１月１２日".to_owned())
         );
@@ -169,4 +182,9 @@ mod tests {
         );
     }
 
+    #[test]
+    fn test_is_jp() {
+        assert!(!is_jp("testing 123 Hello, world!"));
+        assert!(is_jp("日本語の文です。"));
+    }
 }
