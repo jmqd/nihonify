@@ -108,6 +108,7 @@ pub fn is_jp(s: &str) -> bool {
         match c as u32 {
             0x3040..=0x309F => return true,
             0x30A0..=0x30FF => return true,
+            0x31F0..=0x31FF => return true,
             _ => (),
         }
     }
