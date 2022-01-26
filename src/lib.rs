@@ -102,7 +102,9 @@ pub fn utc_dt(date: &str) -> DateTime<Utc> {
 }
 
 /// A rudimentary way to detect Japanese-language strings.
-/// O(n) on the length of the string.
+/// Note: O(n) on the length of the string.
+/// Note: Short-circuit returns true on any Japanese grapheme.
+/// Note: Does not handle mixed-language strings well.
 pub fn is_jp(s: &str) -> bool {
     for c in s.chars().into_iter() {
         match c as u32 {
