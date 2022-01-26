@@ -106,8 +106,11 @@ pub fn utc_dt(date: &str) -> DateTime<Utc> {
 pub fn is_jp(s: &str) -> bool {
     for c in s.chars().into_iter() {
         match c as u32 {
+            // Hiragana graphemes
             0x3040..=0x309F => return true,
+            // Katakana graphemes
             0x30A0..=0x30FF => return true,
+            // Katakana phonetic extension graphemes
             0x31F0..=0x31FF => return true,
             _ => (),
         }
